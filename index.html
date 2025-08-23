@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Explanation of the following block code: Standard <head> metadata, Tailwind CDN for styling, and React + Babel UMD scripts so we can write JSX directly in the page without a build step. -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Field Hockey Canada Masters</title>
@@ -14,13 +15,15 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body class="bg-neutral-50">
+    <!-- Explanation of the following block code: This root div is where React will render the whole app. -->
     <div id="root"></div>
 
-    <!-- App code -->
+    <!-- Explanation of the following block code: The entire React app lives inside this script. We use Babel to transform JSX at runtime. -->
     <script type="text/babel" data-presets="env,react">
-      const { useState } = React;
+      // Explanation of the following block code: Import React hooks from the global React UMD bundle.
+      const { useState, useMemo } = React;
 
-      // ===== Read-only data =====
+      // Explanation of the following block code: Central, read-only content model. Update this DEFAULT_DATA to change site content.
       const DEFAULT_DATA = {
         site: {
           title: 'Field Hockey Canada Masters',
@@ -44,15 +47,68 @@
           codeOfConduct: 'https://fieldhockey.ca/policies/',
         },
         announcements: [
+          // Explanation of the following block code: Four separate cards for the 2026 WMH events (indoor + three outdoor tournaments).
           {
-            id: 'a2',
-            date: '2026-07-22',
-            title: '2026 WMH World Cup Venues & Dates Confirmed',
-            body: 'WMH has confirmed the 2026 World Cup across three venues: Tournaments 1 & 2 (W/M O35–O50) at HC Rotterdam, Netherlands (22 Jul – 1 Aug 2026); Tournament 3 (Women O55–O70, Men O55/O60) at KHC Dragons, Brasschaat, Belgium (6 – 16 Aug 2026); and Tournament 4 (Men O65–O80) at BHV Push, Breda, Netherlands (6 – 16 Aug 2026).',
+            id: 'a4',
+            date: '2026-03-26',
+            title: '2026 WMH Indoor World Cup – Nottingham',
+            body: `26–31 March 2026
+David Ross Sports Village, University of Nottingham, England
+
+Divisions:
+• Women O35–O65
+• Men O35–O65
+(National & International Masters Cup – IMC)`,
             ctaText: 'Event details',
             ctaUrl: 'https://worldmastershockey.org/wmhevents/category/wc/',
             tag: 'World Cup',
           },
+          {
+            id: 'a5',
+            date: '2026-07-22',
+            title: '2026 WMH World Cup T1 & T2 – Rotterdam',
+            body: `22 July – 1 August 2026
+HC Rotterdam, Netherlands
+
+Divisions:
+• Women O35–O50
+• Men O35–O50
+(National & International Masters Cup – IMC)`,
+            ctaText: 'Event details',
+            ctaUrl: 'https://worldmastershockey.org/wmhevents/category/wc/',
+            tag: 'World Cup',
+          },
+          {
+            id: 'a6',
+            date: '2026-08-06',
+            title: '2026 WMH World Cup T3 – Brasschaat',
+            body: `6–16 August 2026
+KHC Dragons, Brasschaat, Belgium
+
+Divisions:
+• Women O55–O70
+• Men O55–O60
+(National & International Masters Cup – IMC)`,
+            ctaText: 'Event details',
+            ctaUrl: 'https://worldmastershockey.org/wmhevents/category/wc/',
+            tag: 'World Cup',
+          },
+          {
+            id: 'a7',
+            date: '2026-08-06',
+            title: '2026 WMH World Cup T4 – Breda',
+            body: `6–16 August 2026
+BHV Push, Breda, Netherlands
+
+Divisions:
+• Men O65–O80
+(National & International Masters Cup – IMC)`,
+            ctaText: 'Event details',
+            ctaUrl: 'https://worldmastershockey.org/wmhevents/category/wc/',
+            tag: 'World Cup',
+          },
+
+          // Explanation of the following block code: Existing PACC and Welcome announcements.
           {
             id: 'a3',
             date: '2025-09-21',
@@ -72,7 +128,33 @@
             tag: 'Update',
           },
         ],
+
+        // Explanation of the following block code: Updated photo set with placeholders mapped to each 2026 event + two FHC photos.
         photos: [
+          {
+            id: 'p4',
+            url: 'https://images.unsplash.com/photo-1607522370275-8f46fa7eec73?q=80&w=1600&auto=format&fit=crop',
+            caption: 'Indoor World Cup – Nottingham 2026',
+            credit: 'Photo: Unsplash placeholder',
+          },
+          {
+            id: 'p5',
+            url: 'https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?q=80&w=1600&auto=format&fit=crop',
+            caption: 'World Cup T1 & T2 – Rotterdam 2026',
+            credit: 'Photo: Unsplash placeholder',
+          },
+          {
+            id: 'p6',
+            url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1600&auto=format&fit=crop',
+            caption: 'World Cup T3 – Brasschaat 2026',
+            credit: 'Photo: Unsplash placeholder',
+          },
+          {
+            id: 'p7',
+            url: 'https://images.unsplash.com/photo-1505842465776-3ac8e33a5a5f?q=80&w=1600&auto=format&fit=crop',
+            caption: 'World Cup T4 – Breda 2026',
+            credit: 'Photo: Unsplash placeholder',
+          },
           {
             id: 'p2',
             url: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1600&auto=format&fit=crop',
@@ -88,7 +170,7 @@
         ],
       };
 
-      // ===== App (read-only) =====
+      // Explanation of the following block code: Top-level App component controls the active tab and passes data to sections.
       function App(){
         const [data] = useState(DEFAULT_DATA);
         const [tab, setTab] = useState('home');
@@ -125,6 +207,7 @@
         );
       }
 
+      // Explanation of the following block code: Header with brand mark (initials), title, and subtitle.
       function SiteHeader({ title, subtitle, logoText }){
         return (
           <header className="bg-gradient-to-br from-red-600 via-red-700 to-neutral-900 text-white">
@@ -145,10 +228,12 @@
         );
       }
 
+      // Explanation of the following block code: Small reusable tab button used in the navbar.
       function TabButton({active, onClick, children}){
         return <button onClick={onClick} className={`px-3 py-2 text-sm rounded-xl font-medium transition-all ${active? 'bg-red-600 text-white shadow':'text-neutral-700 hover:bg-neutral-100'}`}>{children}</button>;
       }
 
+      // Explanation of the following block code: Home section with intro and quick links.
       function Home({data, setTab}){
         return (
           <section className="grid gap-6 md:grid-cols-3">
@@ -180,7 +265,7 @@
               <div className="rounded-2xl bg-white shadow-sm border border-neutral-200 overflow-hidden">
                 <div className="p-6">
                   <h3 className="text-lg font-bold">Latest Announcement</h3>
-                  {data.announcements?.length ? <AnnouncementCard ann={data.announcements[0]} compact /> : <p className="text-neutral-600">No announcements yet.</p>}
+                  {data.announcements?.length ? <AnnouncementCard ann={[...data.announcements].sort((a,b)=> (b.date||'').localeCompare(a.date||''))[0]} compact /> : <p className="text-neutral-600">No announcements yet.</p>}
                 </div>
               </div>
               <div className="mt-6 rounded-2xl bg-white shadow-sm border border-neutral-200 overflow-hidden">
@@ -198,6 +283,8 @@
           </section>
         );
       }
+
+      // Explanation of the following block code: Quick link item with label and the URL shown underneath.
       function QuickLink({href, label}){ return (
         <li>
           <a href={href} target="_blank" rel="noreferrer" className="block rounded-xl border border-neutral-200 px-4 py-3 hover:border-red-600 hover:bg-red-50 transition">
@@ -207,8 +294,9 @@
         </li>
       );}
 
+      // Explanation of the following block code: Announcements page; sorts items by date descending and renders cards.
       function Announcements({ announcements }){
-        const sorted = React.useMemo(()=>[...announcements].sort((a,b)=> (b.date||'').localeCompare(a.date||'')), [announcements]);
+        const sorted = useMemo(()=>[...announcements].sort((a,b)=> (b.date||'').localeCompare(a.date||'')), [announcements]);
         return (
           <section>
             <h2 className="text-xl font-bold mb-3">Announcements</h2>
@@ -218,6 +306,8 @@
           </section>
         );
       }
+
+      // Explanation of the following block code: Individual announcement card; optional CTA button if a link is provided.
       function AnnouncementCard({ ann, compact }){
         return (
           <article className={`rounded-2xl border border-neutral-200 bg-white shadow-sm ${compact? '': 'p-0'}`}>
@@ -236,6 +326,7 @@
         );
       }
 
+      // Explanation of the following block code: Photo grid for visual updates; each item shows image, caption, and credit.
       function Photos({ photos }){
         return (
           <section>
@@ -256,6 +347,7 @@
         );
       }
 
+      // Explanation of the following block code: Events section with PACC and WMH links; also includes policies.
       function Events({ links }){
         return (
           <section className="grid gap-6">
@@ -268,6 +360,8 @@
           </section>
         );
       }
+
+      // Explanation of the following block code: Small card used in the Events section for consistent layout of links.
       function EventCard({ title, description, infoUrl, regUrl, regLabel='Register / EOI' }){
         return (
           <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
@@ -281,6 +375,7 @@
         );
       }
 
+      // Explanation of the following block code: Footer with dynamic year and multiple clickable contact emails.
       function SiteFooter({ contactEmails }){
         return (
           <footer className="mt-12 border-t border-neutral-200">
@@ -302,8 +397,8 @@
         );
       }
 
+      // Explanation of the following block code: Bootstraps the React app and mounts it into #root.
       ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
     </script>
   </body>
 </html>
-
