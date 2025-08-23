@@ -32,8 +32,8 @@
   'masters@fieldhockey.ca'
 ],
           socials: {
-            instagram: 'https://instagram.com/fieldhockeycanada',
-            facebook: 'https://facebook.com/fieldhockeycanada',
+            instagram: 'https://www.instagram.com/fieldhockeycan/',
+            facebook: 'https://www.facebook.com/groups/576506604082841/',
             web: 'https://fieldhockey.ca/program/canadian-masters-hockey/',
           },
         },
@@ -91,7 +91,7 @@
 
       function loadData(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? {...DEFAULT_DATA, ...JSON.parse(raw)}: DEFAULT_DATA; }catch{ return DEFAULT_DATA; } }
       function saveData(d){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }catch(e){} }
-
+    <!-- App code 
       function App(){
         const [data, setData] = useState(loadData);
         const [tab, setTab] = useState('home');
@@ -133,7 +133,7 @@
           </div>
         );
       }
-
+-->
       function SiteHeader({ title, subtitle, logoText, admin, onToggleAdmin, onOpenSettings, onReset }){
         return (
           <header className="bg-gradient-to-br from-red-600 via-red-700 to-neutral-900 text-white">
