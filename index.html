@@ -18,19 +18,18 @@
 
     <!-- App code -->
     <script type="text/babel" data-presets="env,react">
-      const { useEffect, useMemo, useState } = React;
+      const { useState } = React;
 
-      const STORAGE_KEY = 'fhcMastersSite_v1';
+      // ===== Read-only data =====
       const DEFAULT_DATA = {
         site: {
           title: 'Field Hockey Canada Masters',
           subtitle: 'Official updates for Masters athletes across Canada',
           logoText: 'FHC Masters',
-          accent: 'red',
-         contactEmails: [
-  'fhcanadamasters@gmail.com',
-  'masters@fieldhockey.ca'
-],
+          contactEmails: [
+            'fhcanadamasters@gmail.com',
+            'masters@fieldhockey.ca'
+          ],
           socials: {
             instagram: 'https://www.instagram.com/fieldhockeycan/',
             facebook: 'https://www.facebook.com/groups/576506604082841/',
@@ -89,20 +88,15 @@
         ],
       };
 
-      function loadData(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? {...DEFAULT_DATA, ...JSON.parse(raw)}: DEFAULT_DATA; }catch{ return DEFAULT_DATA; } }
-      function saveData(d){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }catch(e){} }
-  
+      // ===== App (read-only) =====
       function App(){
-        const [data, setData] = useState(loadData);
+        const [data] = useState(DEFAULT_DATA);
         const [tab, setTab] = useState('home');
-        const [admin, setAdmin] = useState(false);
-        const [showSettings, setShowSettings] = useState(false);
-        useEffect(()=>saveData(data), [data]);
-        const handleReset = ()=> { if (confirm('Reset site to defaults?')) { setData(DEFAULT_DATA); saveData(DEFAULT_DATA);} };
+
         return (
           <div className="min-h-screen bg-neutral-50 text-neutral-900">
-            <SiteHeader title={data.site.title} subtitle={data.site.subtitle} logoText={data.site.logoText}
-              admin={admin} onToggleAdmin={()=>setAdmin(s=>!s)} onOpenSettings={()=>setShowSettings(true)} onReset={handleReset} />
+            <SiteHeader title={data.site.title} subtitle={data.site.subtitle} logoText={data.site.logoText} />
+
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-neutral-200">
               <div className="mx-auto max-w-6xl px-4">
                 <div className="flex items-center gap-2 py-2">
@@ -111,46 +105,40 @@
                   <TabButton active={tab==='photos'} onClick={()=>setTab('photos')}>Photo Updates</TabButton>
                   <TabButton active={tab==='events'} onClick={()=>setTab('events')}>Events & Registration</TabButton>
                   <div className="ml-auto flex items-center gap-2">
-                    <a href={data.site.socials.instagram} target="_blank" className="text-sm underline">Instagram</a>
-                    <a href={data.site.socials.facebook} target="_blank" className="text-sm underline">Facebook</a>
-                    <a href={data.site.socials.web} target="_blank" className="text-sm underline">FHC Masters</a>
+                    <a href={data.site.socials.instagram} target="_blank" rel="noreferrer" className="text-sm underline">Instagram</a>
+                    <a href={data.site.socials.facebook} target="_blank" rel="noreferrer" className="text-sm underline">Facebook</a>
+                    <a href={data.site.socials.web} target="_blank" rel="noreferrer" className="text-sm underline">FHC Masters</a>
                   </div>
                 </div>
               </div>
             </nav>
+
             <main className="mx-auto max-w-6xl px-4 py-8">
-              {tab==='home' && <Home data={data} setTab={setTab} />}
-              {tab==='ann' && <Announcements announcements={data.announcements} admin={admin}
-                onAdd={(a)=>setData(d=>({...d, announcements:[a, ...d.announcements]}))}
-                onDelete={(id)=>setData(d=>({...d, announcements:d.announcements.filter(x=>x.id!==id)}))} />}
-              {tab==='photos' && <Photos photos={data.photos} admin={admin}
-                onAdd={(p)=>setData(d=>({...d, photos:[p, ...d.photos]}))}
-                onDelete={(id)=>setData(d=>({...d, photos:d.photos.filter(x=>x.id!==id)}))} />}
-              {tab==='events' && <Events links={data.links} admin={admin} onSave={(links)=>setData(d=>({...d, links}))} />}
+              {tab==='home'   && <Home data={data} setTab={setTab} />}
+              {tab==='ann'    && <Announcements announcements={data.announcements} />}
+              {tab==='photos' && <Photos photos={data.photos} />}
+              {tab==='events' && <Events links={data.links} />}
             </main>
-            {showSettings && <SettingsModal data={data} onClose={()=>setShowSettings(false)} onSave={(site)=>setData(d=>({...d, site}))} />}  
-<SiteFooter contactEmails={data.site.contactEmails} />
+
+            <SiteFooter contactEmails={data.site.contactEmails} />
           </div>
         );
       }
 
-      function SiteHeader({ title, subtitle, logoText, admin, onToggleAdmin, onOpenSettings, onReset }){
+      function SiteHeader({ title, subtitle, logoText }){
         return (
           <header className="bg-gradient-to-br from-red-600 via-red-700 to-neutral-900 text-white">
             <div className="mx-auto max-w-6xl px-4 py-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-2xl bg-white text-red-700 grid place-items-center font-black">{(logoText||'FHC').split(' ').map(s=>s[0]).join('')}</div>
+                  <div className="h-12 w-12 rounded-2xl bg-white text-red-700 grid place-items-center font-black">
+                    {(logoText||'FHC').split(' ').map(s=>s[0]).join('')}
+                  </div>
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{title}</h1>
                     <p className="text-sm sm:text-base text-white/90">{subtitle}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={onToggleAdmin} className={`px-3 py-1.5 rounded-xl text-sm font-semibold border border-white/30 ${admin? 'bg-white text-red-700':'bg-black/20'}`}>{admin? 'Admin: ON':'Admin: OFF'}</button>
-                  <button onClick={onOpenSettings} className="px-3 py-1.5 rounded-xl text-sm font-semibold border border-white/30 hover:bg-white/10">Settings</button>
-                  <button onClick={onReset} className="px-3 py-1.5 rounded-xl text-sm font-semibold border border-white/30 hover:bg-white/10">Reset</button>
-                </div> 
               </div>
             </div>
           </header>
@@ -160,6 +148,7 @@
       function TabButton({active, onClick, children}){
         return <button onClick={onClick} className={`px-3 py-2 text-sm rounded-xl font-medium transition-all ${active? 'bg-red-600 text-white shadow':'text-neutral-700 hover:bg-neutral-100'}`}>{children}</button>;
       }
+
       function Home({data, setTab}){
         return (
           <section className="grid gap-6 md:grid-cols-3">
@@ -218,23 +207,18 @@
         </li>
       );}
 
-      function Announcements({ announcements, admin, onAdd, onDelete }){
-        const [showForm, setShowForm] = useState(false);
+      function Announcements({ announcements }){
         const sorted = React.useMemo(()=>[...announcements].sort((a,b)=> (b.date||'').localeCompare(a.date||'')), [announcements]);
         return (
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-bold">Announcements</h2>
-              {admin && <button onClick={()=>setShowForm(true)} className="px-3 py-2 bg-red-600 text-white rounded-xl font-semibold">New announcement</button>}
-            </div>
+            <h2 className="text-xl font-bold mb-3">Announcements</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {sorted.map(ann => <AnnouncementCard key={ann.id} ann={ann} admin={admin} onDelete={()=>onDelete(ann.id)} />)}
+              {sorted.map(ann => <AnnouncementCard key={ann.id} ann={ann} />)}
             </div>
-            {showForm && <AnnouncementForm onCancel={()=>setShowForm(false)} onSave={(ann)=>{onAdd(ann); setShowForm(false);}} />}
           </section>
         );
       }
-      function AnnouncementCard({ ann, admin, onDelete, compact }){
+      function AnnouncementCard({ ann, compact }){
         return (
           <article className={`rounded-2xl border border-neutral-200 bg-white shadow-sm ${compact? '': 'p-0'}`}>
             <div className="p-5">
@@ -244,7 +228,6 @@
                   <h3 className="mt-2 text-lg font-bold leading-tight">{ann.title}</h3>
                   <p className="text-xs text-neutral-500 mt-1">{ann.date}</p>
                 </div>
-                {admin && <button onClick={onDelete} className="text-xs text-red-700 underline">Delete</button>}
               </div>
               <p className="mt-3 text-neutral-700 whitespace-pre-line">{ann.body}</p>
               {ann.ctaUrl && <a className="inline-block mt-4 px-3 py-2 rounded-xl bg-neutral-900 text-white text-sm font-semibold" href={ann.ctaUrl} target="_blank" rel="noreferrer">{ann.ctaText || 'Learn more'}</a>}
@@ -252,40 +235,11 @@
           </article>
         );
       }
-      function AnnouncementForm({ onCancel, onSave }){
-        const [title, setTitle] = useState('');
-        const [date, setDate] = useState(new Date().toISOString().slice(0,10));
-        const [body, setBody] = useState('');
-        const [ctaText, setCtaText] = useState('');
-        const [ctaUrl, setCtaUrl] = useState('');
-        const [tag, setTag] = useState('Update');
-        const handleSubmit = (e)=>{ e.preventDefault(); onSave({ id: crypto.randomUUID(), title, date, body, ctaText, ctaUrl, tag }); };
-        return (
-          <div className="fixed inset-0 bg-black/40 grid place-items-center p-4 z-50">
-            <form onSubmit={handleSubmit} className="w-full max-w-xl bg-white rounded-2xl p-5 shadow-xl grid gap-3">
-              <h3 className="text-lg font-bold">New Announcement</h3>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Title</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={title} onChange={e=>setTitle(e.target.value)} required/></label>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Date</span><input type="date" className="rounded-xl border border-neutral-300 px-3 py-2" value={date} onChange={e=>setDate(e.target.value)} /></label>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Tag</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={tag} onChange={e=>setTag(e.target.value)} placeholder="Update / Camps / Selection / Travel"/></label>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Body</span><textarea className="rounded-xl border border-neutral-300 px-3 py-2 min-h-32" value={body} onChange={e=>setBody(e.target.value)} placeholder="Write your announcement..."/></label>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <label className="grid gap-2"><span className="text-sm font-semibold">CTA Text</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={ctaText} onChange={e=>setCtaText(e.target.value)} placeholder="Register / Learn more"/></label>
-                <label className="grid gap-2"><span className="text-sm font-semibold">CTA URL</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={ctaUrl} onChange={e=>setCtaUrl(e.target.value)} placeholder="https://..."/></label>
-              </div>
-              <div className="flex items-center justify-end gap-2 mt-2"><button type="button" onClick={onCancel} className="px-3 py-2 rounded-xl border">Cancel</button><button className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold">Save</button></div>
-            </form>
-          </div>
-        );
-      }
 
-      function Photos({ photos, admin, onAdd, onDelete }){
-        const [showForm, setShowForm] = useState(false);
+      function Photos({ photos }){
         return (
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-bold">Photo Updates</h2>
-              {admin && <button onClick={()=>setShowForm(true)} className="px-3 py-2 bg-red-600 text-white rounded-xl font-semibold">Add photo</button>}
-            </div>
+            <h2 className="text-xl font-bold mb-3">Photo Updates</h2>
             {photos.length===0 && <p className="text-neutral-600">No photos yet.</p>}
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {photos.map(p => (
@@ -294,60 +248,23 @@
                   <figcaption className="p-3 text-sm text-neutral-700">
                     <div className="font-semibold">{p.caption}</div>
                     <div className="text-xs text-neutral-500">{p.credit}</div>
-                    {admin && <button onClick={()=>onDelete(p.id)} className="mt-2 text-xs text-red-700 underline">Delete</button>}
                   </figcaption>
                 </figure>
               ))}
             </div>
-            {showForm && <PhotoForm onCancel={()=>setShowForm(false)} onSave={(photo)=>{ onAdd(photo); setShowForm(false); }} />}
           </section>
         );
       }
-      function PhotoForm({ onCancel, onSave }){
-        const [url, setUrl] = useState('');
-        const [caption, setCaption] = useState('');
-        const [credit, setCredit] = useState('Photo: FHC');
-        const handleSubmit = (e)=>{ e.preventDefault(); onSave({ id: crypto.randomUUID(), url, caption, credit }); };
-        return (
-          <div className="fixed inset-0 bg-black/40 grid place-items-center p-4 z-50">
-            <form onSubmit={handleSubmit} className="w-full max-w-xl bg-white rounded-2xl p-5 shadow-xl grid gap-3">
-              <h3 className="text-lg font-bold">Add Photo</h3>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Image URL</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://..." required/></label>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Caption</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={caption} onChange={e=>setCaption(e.target.value)} /></label>
-              <label className="grid gap-2"><span className="text-sm font-semibold">Credit</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={credit} onChange={e=>setCredit(e.target.value)} /></label>
-              <div className="flex items-center justify-end gap-2 mt-2"><button type="button" onClick={onCancel} className="px-3 py-2 rounded-xl border">Cancel</button><button className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold">Save</button></div>
-            </form>
-          </div>
-        );
-      }
 
-      function Events({ links, admin, onSave }){
-        const [edit, setEdit] = useState(false);
-        const [draft, setDraft] = useState(links);
-        useEffect(()=>setDraft(links), [links]);
-        const handleSubmit=(e)=>{ e.preventDefault(); onSave(draft); setEdit(false); };
+      function Events({ links }){
         return (
           <section className="grid gap-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Events & Registration</h2>
-              {admin && <button onClick={()=>setEdit(s=>!s)} className="px-3 py-2 bg-red-600 text-white rounded-xl font-semibold">{edit? 'Close':'Edit links'}</button>}
+            <h2 className="text-xl font-bold">Events & Registration</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EventCard title="Pan American Championships (PACC)" description="Regional championship for Pan American nations. Includes multiple age groups and divisions." infoUrl={links.paccInfo} regUrl={links.paccRegistration} />
+              <EventCard title="World Cup (WMH)" description="World Masters Hockey World Cup featuring age group tournaments across host venues." infoUrl={links.worldCupInfo} regUrl={links.worldCupRegistration} />
+              <EventCard title="Policies & Code of Conduct" description="Please review competition policies, selection guidelines, and codes prior to registering." infoUrl={links.codeOfConduct} regUrl={links.codeOfConduct} regLabel="View policies" />
             </div>
-            {!edit? (
-              <div className="grid gap-4 md:grid-cols-2">
-                <EventCard title="Pan American Championships (PACC)" description="Regional championship for Pan American nations. Includes multiple age groups and divisions." infoUrl={links.paccInfo} regUrl={links.paccRegistration} />
-                <EventCard title="World Cup (WMH)" description="World Masters Hockey World Cup featuring age group tournaments across host venues." infoUrl={links.worldCupInfo} regUrl={links.worldCupRegistration} />
-                <EventCard title="Policies & Code of Conduct" description="Please review competition policies, selection guidelines, and codes prior to registering." infoUrl={links.codeOfConduct} regUrl={links.codeOfConduct} regLabel="View policies" />
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="grid gap-4">
-                <EditableLink label="PACC – Info URL" value={draft.paccInfo} onChange={(v)=>setDraft(d=>({...d, paccInfo:v}))} />
-                <EditableLink label="PACC – Registration URL" value={draft.paccRegistration} onChange={(v)=>setDraft(d=>({...d, paccRegistration:v}))} />
-                <EditableLink label="World Cup – Info URL" value={draft.worldCupInfo} onChange={(v)=>setDraft(d=>({...d, worldCupInfo:v}))} />
-                <EditableLink label="World Cup – Registration URL" value={draft.worldCupRegistration} onChange={(v)=>setDraft(d=>({...d, worldCupRegistration:v}))} />
-                <EditableLink label="Policies / Code of Conduct URL" value={draft.codeOfConduct} onChange={(v)=>setDraft(d=>({...d, codeOfConduct:v}))} />
-                <div className="flex items-center justify-end gap-2"><button type="button" onClick={()=>setEdit(false)} className="px-3 py-2 rounded-xl border">Cancel</button><button className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold">Save changes</button></div>
-              </form>
-            )}
           </section>
         );
       }
@@ -363,55 +280,27 @@
           </div>
         );
       }
-      function EditableLink({ label, value, onChange }){
-        return (
-          <label className="grid gap-1"><span className="text-sm font-semibold">{label}</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://..."/></label>
-        );
-      }
-      function SettingsModal({ data, onClose, onSave }){
-        const [site, setSite] = useState(data.site);
-        const handleSubmit=(e)=>{ e.preventDefault(); onSave(site); onClose(); };
-        return (
-          <div className="fixed inset-0 bg-black/40 grid place-items-center p-4 z-50">
-            <form onSubmit={handleSubmit} className="w-full max-w-2xl bg-white rounded-2xl p-5 shadow-xl grid gap-4">
-              <h3 className="text-lg font-bold">Site Settings</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1"><span className="text-sm font-semibold">Site Title</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.title} onChange={e=>setSite({...site, title:e.target.value})} /></label>
-                <label className="grid gap-1"><span className="text-sm font-semibold">Logo Text</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.logoText} onChange={e=>setSite({...site, logoText:e.target.value})} /></label>
-              </div>
-              <label className="grid gap-1"><span className="text-sm font-semibold">Subtitle</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.subtitle} onChange={e=>setSite({...site, subtitle:e.target.value})} /></label>
-              <label className="grid gap-1"><span className="text-sm font-semibold">Contact Email</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.contactEmail} onChange={e=>setSite({...site, contactEmail:e.target.value})} /></label>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <label className="grid gap-1"><span className="text-sm font-semibold">Instagram URL</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.socials.instagram} onChange={e=>setSite({...site, socials:{...site.socials, instagram:e.target.value}})} /></label>
-                <label className="grid gap-1"><span className="text-sm font-semibold">Facebook URL</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.socials.facebook} onChange={e=>setSite({...site, socials:{...site.socials, facebook:e.target.value}})} /></label>
-                <label className="grid gap-1"><span className="text-sm font-semibold">FHC Masters URL</span><input className="rounded-xl border border-neutral-300 px-3 py-2" value={site.socials.web} onChange={e=>setSite({...site, socials:{...site.socials, web:e.target.value}})} /></label>
-              </div>
-              <div className="flex items-center justify-end gap-2"><button type="button" onClick={onClose} className="px-3 py-2 rounded-xl border">Close</button><button className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold">Save</button></div>
-            </form>
-          </div>
-        );
-      }
-      function SiteFooter({ contactEmails }){
-  return (
-    <footer className="mt-12 border-t border-neutral-200">
-      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-600">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>© {new Date().getFullYear()} Field Hockey Canada Masters</div>
-          <div>
-            Contact:{" "}
-            {contactEmails.map((email, i) => (
-              <span key={email}>
-                <a className="underline" href={`mailto:${email}`}>{email}</a>
-                {i < contactEmails.length - 1 ? ", " : ""}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
+      function SiteFooter({ contactEmails }){
+        return (
+          <footer className="mt-12 border-t border-neutral-200">
+            <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-600">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>© {new Date().getFullYear()} Field Hockey Canada Masters</div>
+                <div>
+                  Contact:{' '}
+                  {contactEmails.map((email, i) => (
+                    <span key={email}>
+                      <a className="underline" href={`mailto:${email}`}>{email}</a>
+                      {i < contactEmails.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </footer>
+        );
+      }
 
       ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
     </script>
